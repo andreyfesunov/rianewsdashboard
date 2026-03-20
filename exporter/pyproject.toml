@@ -1,7 +1,7 @@
 [project]
-name = "ria-scraper"
+name = "ria-exporter"
 version = "0.1.0"
-description = "RIA news scraper as a test task"
+description = "RIA news exporter as a test task"
 authors = [
     {name = "andreyfesunov",email = "fsnv04@gmail.com"}
 ]
