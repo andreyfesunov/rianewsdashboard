@@ -1,9 +1,10 @@
+import { ExporterEnv } from '@/config';
 import { HttpModule } from '@nestjs/axios';
 import { Module } from '@nestjs/common';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { application } from './application';
 import { infrastructure } from './infrastructure';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { ExporterEnv } from '@/config';
+import { presentation } from './presentation';
 
 @Module({
   imports: [
@@ -17,7 +18,7 @@ import { ExporterEnv } from '@/config';
       inject: [ConfigService],
     }),
   ],
-  controllers: [],
+  controllers: [...presentation],
   providers: [...application, ...infrastructure],
 })
 export class NewsModule {}

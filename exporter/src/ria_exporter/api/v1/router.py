@@ -43,7 +43,6 @@ def search_news(
 @router.post(
     "/tags/suggest",
     response_model=list[TagItemOut],
-    tags=["tags"],
 )
 def suggest_tags(
     body: TagSuggestQueryIn,

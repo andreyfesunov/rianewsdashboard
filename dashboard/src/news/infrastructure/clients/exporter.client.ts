@@ -4,8 +4,10 @@ import { NewsQuery } from '@/news/domain/models/news/query';
 import { TagSuggestion } from '@/news/domain/models/tags/tags';
 import { TagSuggestQuery } from '@/news/domain/models/tags/query';
 import { HttpService } from '@nestjs/axios';
+import { Injectable } from '@nestjs/common';
 import { firstValueFrom } from 'rxjs';
 
+@Injectable()
 export class ExporterClient {
   public constructor(private readonly http: HttpService) {}
 

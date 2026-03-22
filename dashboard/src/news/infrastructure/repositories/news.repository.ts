@@ -3,7 +3,9 @@ import { News } from '@/news/domain/models/news/news';
 import { NewsQuery } from '@/news/domain/models/news/query';
 import { NewsRepository } from '@/news/domain/repositories/news.repository';
 import { ExporterClient } from '@/news/infrastructure/clients/exporter.client';
+import { Injectable } from '@nestjs/common';
 
+@Injectable()
 export class NewsRepositoryImpl implements NewsRepository {
   public constructor(private readonly exporterClient: ExporterClient) {}
 
