@@ -26,9 +26,17 @@ packages = [{include = "ria_exporter", from = "src"}]
 
 [dependency-groups]
 dev = [
+    "httpx (>=0.28.0,<1.0.0)",
     "mypy (>=1.11.0,<2.0.0)",
     "pre-commit (>=4.0.0,<5.0.0)",
+    "pytest (>=8.0.0,<9.0.0)",
     "ruff (>=0.9.0,<1.0.0)",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+    "live: requests hit real ria.ru (set RUN_LIVE_RIA_TESTS=1)",
 ]
 
 [tool.ruff]
@@ -74,3 +82,7 @@ module = [
     "requests_ratelimiter.*",
 ]
 ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = ["tests.*"]
+disallow_untyped_defs = false
