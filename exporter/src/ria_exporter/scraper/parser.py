@@ -5,15 +5,23 @@ from typing import Any
 from bs4 import BeautifulSoup
 
 
+def _optional_int_attr(element: Any, name: str) -> int | None:
+    if not element or not element.has_attr(name):
+        return None
+    raw = str(element[name]).strip()
+    if not raw:
+        return None
+    try:
+        return int(raw)
+    except ValueError:
+        return None
+
+
 def parse_search_html(html: str) -> tuple[int | None, list[dict[str, Any]]]:
     soup = BeautifulSoup(html, "html.parser")
 
     list_items_loaded = soup.find("div", class_="list-items-loaded")
-    total = (
-        int(str(list_items_loaded["data-count"]))
-        if list_items_loaded and list_items_loaded.has_attr("data-count")
-        else None
-    )
+    total = _optional_int_attr(list_items_loaded, "data-count")
 
     items: list[dict[str, Any]] = []
     for item_div in soup.find_all("div", class_="list-item"):

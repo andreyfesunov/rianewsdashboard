@@ -12,7 +12,7 @@ import { ZodResponse } from 'nestjs-zod';
 
 @ApiTags('tags')
 @Controller('api/v1/tags')
-export class TagsSuggestController {
+export class TagsController {
   public constructor(private readonly tagsService: TagsService) {}
 
   @Post('suggest')

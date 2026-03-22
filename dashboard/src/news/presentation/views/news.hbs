@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>RIA — новости</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@tabler/core@1.4.0/dist/css/tabler.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@yaireo/tagify@4.31.3/dist/tagify.css"
+    />
+    <style>
+      .tagify.form-control {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.25rem;
+        height: auto;
+        line-height: 1.5;
+        padding: 0.375rem 0.75rem;
+        border: var(--tblr-border-width, 1px) solid var(--tblr-border-color);
+        background: var(--tblr-bg-forms, #fff);
+        position: relative;
+      }
+      .tagify.form-control .tagify__tag {
+        margin: 2px 4px 2px 0;
+        align-items: center;
+      }
+      .tagify.form-control .tagify__tag > div {
+        display: inline-flex;
+        align-items: center;
+        line-height: 1.35;
+        min-height: 1.75rem;
+      }
+      .tagify.form-control .tagify__tag > div::before {
+        inset: 0;
+        --tag-inset-shadow-size: 3em;
+      }
+      .tagify.form-control .tagify__tag > div > span {
+        line-height: 1.35;
+        position: relative;
+        top: -2px;
+      }
+      .tagify.form-control .tagify__tag__removeBtn {
+        align-self: center;
+      }
+      .tagify.form-control .tagify__input {
+        flex: 1 1 auto;
+        min-width: 12ch;
+        margin: 2px 0;
+        padding: 0.2rem 0.35rem;
+        min-height: 1.75rem;
+        line-height: 1.5;
+        display: inline-flex;
+        align-items: center;
+      }
+      .tagify.form-control .tagify__input::before {
+        line-height: 1.5;
+        display: flex;
+        align-items: center;
+      }
+      .tagify.form-control.tagify--loading .tagify__input::after {
+        display: none !important;
+      }
+      .tagify.form-control.tagify--loading::before {
+        content: '';
+        position: absolute;
+        right: 0.75rem;
+        top: 50%;
+        width: 1.35rem;
+        height: 1.35rem;
+        margin-top: -0.675rem;
+        border: 3px solid rgba(32, 107, 196, 0.15);
+        border-top-color: var(--tblr-primary, #206bc4);
+        border-radius: 50%;
+        animation: ria-tg-spin 0.45s linear infinite;
+        z-index: 10;
+        pointer-events: none;
+      }
+      @keyframes ria-tg-spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      .tagify__dropdown.news-tagify-dd {
+        z-index: 1060;
+      }
+      .tagify__dropdown.news-tagify-dd .tagify__dropdown__item {
+        padding: 0.5rem 0.75rem;
+        white-space: normal;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <script type="application/json" id="selected-tags-json">{{{selectedTagsJson}}}</script>
+    <div class="page">
+      <div class="page-wrapper">
+        <header class="navbar navbar-expand-md navbar-light d-print-none">
+          <div class="container-fluid">
+            <h1 class="navbar-brand navbar-brand-autodark mb-0 h3">Новости</h1>
+            <div class="navbar-nav flex-row ms-md-auto">
+              <a class="btn btn-outline-secondary btn-sm" href="/swagger">Swagger</a>
+            </div>
+          </div>
+        </header>
+        <div class="page-body">
+          <div class="container-fluid py-4">
+            <div class="card">
+              <div class="card-header">
+                <form id="news-filter-form" method="get" action="/dashboard/news" class="w-100">
+                  <div class="mb-3 w-100">
+                    <label class="form-label" for="search-q">Поиск</label>
+                    <input
+                      id="search-q"
+                      type="text"
+                      name="q"
+                      class="form-control form-control-lg w-100"
+                      placeholder="Запрос…"
+                      value="{{q}}"
+                      autocomplete="off"
+                      spellcheck="false"
+                      inputmode="search"
+                    />
+                  </div>
+                  <div class="mb-3 w-100">
+                    <label class="form-label" for="tagify-tags">Теги</label>
+                    <input
+                      id="tagify-tags"
+                      class="form-control form-control-lg w-100"
+                      autocomplete="off"
+                      spellcheck="false"
+                      placeholder="Начните вводить префикс и выберите из списка…"
+                    />
+                    <div id="tag-hidden-inputs" hidden></div>
+                  </div>
+                  <div class="w-100 mt-2">
+                    <button type="submit" class="btn btn-primary btn-lg w-100">
+                      Найти
+                    </button>
+                  </div>
+                </form>
+              </div>
+              <div class="table-responsive">
+                <table class="table table-vcenter card-table table-striped">
+                  <thead>
+                    <tr>
+                      <th class="text-nowrap">Фото</th>
+                      <th>Заголовок</th>
+                      <th class="w-1 text-nowrap">Время</th>
+                      <th class="w-1 text-end text-nowrap">Просмотры</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {{#each items}}
+                      <tr>
+                        <td class="align-middle py-2 text-nowrap">
+                          {{#if assets}}
+                            {{#each assets}}
+                              {{#if @first}}
+                                <a href="{{../url}}" target="_blank" rel="noopener noreferrer" class="d-inline-block">
+                                  <img
+                                    src="{{this}}"
+                                    alt="{{../title}}"
+                                    width="320"
+                                    height="200"
+                                    class="rounded border bg-light"
+                                    loading="lazy"
+                                    decoding="async"
+                                  />
+                                </a>
+                              {{/if}}
+                            {{/each}}
+                          {{else}}
+                            <span class="text-secondary small">—</span>
+                          {{/if}}
+                        </td>
+                        <td class="align-middle">
+                          <a href="{{url}}" class="text-reset" target="_blank" rel="noopener noreferrer">{{title}}</a>
+                        </td>
+                        <td class="text-secondary text-nowrap align-middle">{{time}}</td>
+                        <td class="text-end text-nowrap align-middle">{{views}}</td>
+                      </tr>
+                    {{else}}
+                      <tr>
+                        <td colspan="4" class="text-secondary text-center py-5">Ничего не найдено</td>
+                      </tr>
+                    {{/each}}
+                  </tbody>
+                </table>
+              </div>
+              <div class="card-footer d-flex flex-wrap align-items-center justify-content-between gap-2">
+                <div class="text-secondary small">
+                  Стр. {{page}} из {{totalPages}} · всего {{total}}
+                </div>
+                <ul class="pagination pagination-outline m-0">
+                  {{#if hasPrev}}
+                    <li class="page-item">
+                      <a class="page-link" href="{{prevHref}}">Назад</a>
+                    </li>
+                  {{else}}
+                    <li class="page-item disabled">
+                      <span class="page-link">Назад</span>
+                    </li>
+                  {{/if}}
+                  {{#if hasNext}}
+                    <li class="page-item">
+                      <a class="page-link" href="{{nextHref}}">Вперёд</a>
+                    </li>
+                  {{else}}
+                    <li class="page-item disabled">
+                      <span class="page-link">Вперёд</span>
+                    </li>
+                  {{/if}}
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/@tabler/core@1.4.0/dist/js/tabler.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify@4.31.3/dist/tagify.min.js"></script>
+    <script>
+      (function () {
+        var input = document.getElementById('tagify-tags');
+        var form = document.getElementById('news-filter-form');
+        var seedEl = document.getElementById('selected-tags-json');
+        if (!input || !form || typeof Tagify === 'undefined') return;
+
+        var STORAGE_KEY = 'riaDashboardTagLabels';
+        function readMap() {
+          try {
+            var raw = sessionStorage.getItem(STORAGE_KEY);
+            return raw ? JSON.parse(raw) : {};
+          } catch (e) {
+            return {};
+          }
+        }
+        function writeMap(m) {
+          sessionStorage.setItem(STORAGE_KEY, JSON.stringify(m));
+        }
+        function mergeWhitelist(currentValue, fetched) {
+          var byVal = {};
+          [].concat(currentValue || [], fetched || []).forEach(function (t) {
+            if (!t || t.value == null || t.value === '') return;
+            var v = String(t.value);
+            byVal[v] = { value: v, label: t.label || v };
+          });
+          return Object.keys(byVal).map(function (k) {
+            return byVal[k];
+          });
+        }
+        function suggestFetch(body) {
+          return fetch('/api/v1/tags/suggest', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+            body: JSON.stringify(body),
+          }).then(function (r) {
+            return r.json();
+          });
+        }
+        function hydrateLabelsForIds(ids, map) {
+          var need = ids.filter(function (id) {
+            var s = String(id);
+            var lab = map[s];
+            return lab === undefined || lab === '' || lab === s;
+          });
+          if (!need.length) return Promise.resolve();
+          return Promise.all(
+            need.map(function (id) {
+              return suggestFetch({ query: String(id), page: 1 })
+                .then(function (arr) {
+                  if (!Array.isArray(arr)) return;
+                  var s = String(id);
+                  var hit = arr.find(function (x) {
+                    return String(x.value) === s;
+                  });
+                  if (hit && hit.label) {
+                    map[s] = hit.label;
+                    writeMap(map);
+                  }
+                })
+                .catch(function () {});
+            }),
+          );
+        }
+
+        var labelMap = readMap();
+        var ids = [];
+        try {
+          ids = seedEl && seedEl.textContent ? JSON.parse(seedEl.textContent.trim()) : [];
+        } catch (e) {
+          ids = [];
+        }
+        if (!Array.isArray(ids)) ids = [];
+
+        hydrateLabelsForIds(ids, labelMap).then(function () {
+          labelMap = readMap();
+          var initialTags = ids.map(function (id) {
+            var s = String(id);
+            return { value: s, label: labelMap[s] || s };
+          });
+
+          var tagify = new Tagify(input, {
+            tagTextProp: 'label',
+            enforceWhitelist: true,
+            duplicates: false,
+            editTags: false,
+            autoComplete: { enabled: false },
+            transformTag: function (tagData) {
+              var m = readMap();
+              var v = String(tagData.value);
+              tagData.label = m[v] || tagData.label || v;
+            },
+            dropdown: {
+              maxItems: 25,
+              classname: 'news-tagify-dd',
+              enabled: 1,
+              closeOnSelect: true,
+              position: 'all',
+              highlightFirst: false,
+              searchKeys: ['label', 'value'],
+              mapValueTo: 'label',
+            },
+            whitelist: initialTags.slice(),
+          });
+
+          if (initialTags.length) {
+            tagify.addTags(initialTags);
+          }
+
+          var searchTimer;
+          tagify.on('input', function (e) {
+            var q = (e.detail && e.detail.value ? e.detail.value : '').trim();
+            clearTimeout(searchTimer);
+            if (!q.length) {
+              tagify.loading(false);
+              tagify.dropdown.hide();
+              tagify.settings.whitelist = mergeWhitelist(tagify.value, []);
+              return;
+            }
+            tagify.loading(true);
+            searchTimer = setTimeout(function () {
+              suggestFetch({ query: q, page: 1 })
+                .then(function (json) {
+                  var fetched = Array.isArray(json)
+                    ? json.map(function (x) {
+                        var v = String(x.value);
+                        var lab =
+                          x.label != null && String(x.label).trim() !== ''
+                            ? String(x.label)
+                            : v;
+                        return { value: v, label: lab };
+                      })
+                    : [];
+                  tagify.settings.whitelist = mergeWhitelist(tagify.value, fetched);
+                  tagify.loading(false);
+                  if (fetched.length) {
+                    tagify.dropdown.show.call(tagify, q);
+                  } else {
+                    tagify.dropdown.hide();
+                  }
+                })
+                .catch(function () {
+                  tagify.loading(false);
+                  tagify.dropdown.hide();
+                });
+            }, 280);
+          });
+
+          tagify.on('add', function (e) {
+            var d = e.detail.data;
+            if (!d || d.value == null) return;
+            var m = readMap();
+            m[String(d.value)] = d.label || String(d.value);
+            writeMap(m);
+          });
+
+          form.addEventListener('submit', function () {
+            var box = document.getElementById('tag-hidden-inputs');
+            if (!box) return;
+            box.innerHTML = '';
+            (tagify.value || []).forEach(function (t) {
+              if (!t || t.value == null || t.value === '') return;
+              var h = document.createElement('input');
+              h.type = 'hidden';
+              h.name = 'tags';
+              h.value = String(t.value);
+              box.appendChild(h);
+            });
+          });
+        });
+      })();
+    </script>
+  </body>
+</html>

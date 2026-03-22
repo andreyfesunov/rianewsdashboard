@@ -1,4 +1,5 @@
-import { NewsApiController } from './controllers/news-api.controller';
-import { TagsSuggestController } from './controllers/tags-suggest.controller';
+import { NewsController } from './api/news.controller';
+import { TagsController } from './api/tags.controller';
+import { NewsMvcController } from './mvc/news.controller';
 
-export const presentation = [NewsApiController, TagsSuggestController];
+export const presentation = [NewsController, TagsController, NewsMvcController];

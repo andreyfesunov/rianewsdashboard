@@ -12,7 +12,7 @@ import { ZodResponse } from 'nestjs-zod';
 
 @ApiTags('news')
 @Controller('api/v1/news')
-export class NewsApiController {
+export class NewsController {
   public constructor(private readonly newsService: NewsService) {}
 
   @Post('search')
