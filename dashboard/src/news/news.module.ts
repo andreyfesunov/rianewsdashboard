@@ -9,7 +9,10 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
     HttpModule.registerAsync({
       imports: [ConfigModule],
       useFactory: (config: ConfigService) => ({
-        baseURL: config.getOrThrow<string>('EXPORTER_BASE_URL'),
+        baseURL: config.get<string>(
+          'EXPORTER_BASE_URL',
+          'http://localhost:8000',
+        ),
       }),
       inject: [ConfigService],
     }),
