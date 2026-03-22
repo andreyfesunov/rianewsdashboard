@@ -2,13 +2,13 @@ services:
   exporter:
     build: ./exporter
     ports:
-      - "8000:8000"
+      - "8080:8080"
 
   dashboard:
     build: ./dashboard
     ports:
       - "3000:3000"
     environment:
-      EXPORTER_BASE_URL: http://exporter:8000
+      EXPORTER_BASE_URL: http://exporter:8080
     depends_on:
       - exporter

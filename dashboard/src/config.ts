@@ -5,5 +5,5 @@ export interface ConfigEntry {
 
 export const ExporterEnv: ConfigEntry = {
   key: 'EXPORTER_BASE_URL',
-  defaultValue: 'http://127.0.0.1:8000',
+  defaultValue: 'http://127.0.0.1:8080',
 };
