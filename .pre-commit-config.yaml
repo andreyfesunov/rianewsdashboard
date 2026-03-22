@@ -1,6 +1,24 @@
 repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.15.7
+    hooks:
+      - id: ruff-check
+        name: exporter ruff check
+        args: [--fix]
+        exclude: ^dashboard/
+      - id: ruff-format
+        name: exporter ruff format
+        exclude: ^dashboard/
+
   - repo: local
     hooks:
+      - id: exporter-mypy
+        name: exporter mypy
+        entry: poetry -C exporter run mypy -p ria_exporter
+        language: system
+        pass_filenames: false
+        files: ^exporter/
+
       - id: dashboard-eslint
         name: dashboard eslint
         entry: npm --prefix dashboard run lint
