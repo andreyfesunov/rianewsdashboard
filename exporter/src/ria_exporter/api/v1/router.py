@@ -5,14 +5,20 @@ from typing import Annotated, cast
 import requests
 from fastapi import APIRouter, Depends, HTTPException, Request
 
-from ria_exporter.api.schemas import NewsQueryIn, PageOut
-from ria_exporter.scraper.service import RiaResponseError, RiaSearchService
+from ria_exporter.api.schemas import NewsQueryIn, PageOut, TagItemOut, TagSuggestQueryIn
+from ria_exporter.scraper.errors import RiaResponseError
+from ria_exporter.scraper.service import RiaSearchService
+from ria_exporter.scraper.tags_service import RiaTagsService
 
 router = APIRouter(tags=["news"])
 
 
 def get_search_service(request: Request) -> RiaSearchService:
     return cast(RiaSearchService, request.app.state.search_service)
+
+
+def get_tags_service(request: Request) -> RiaTagsService:
+    return cast(RiaTagsService, request.app.state.tags_service)
 
 
 @router.post("/news/search", response_model=PageOut)
@@ -31,4 +37,27 @@ def search_news(
         raise HTTPException(
             status_code=503,
             detail="Failed to reach RIA search",
+        ) from exc
+
+
+@router.post(
+    "/tags/suggest",
+    response_model=list[TagItemOut],
+    tags=["tags"],
+)
+def suggest_tags(
+    body: TagSuggestQueryIn,
+    service: Annotated[RiaTagsService, Depends(get_tags_service)],
+) -> list[TagItemOut]:
+    try:
+        return service.suggest(body)
+    except RiaResponseError as exc:
+        raise HTTPException(
+            status_code=502,
+            detail=f"RIA returned HTTP {exc.status_code}",
+        ) from exc
+    except requests.RequestException as exc:
+        raise HTTPException(
+            status_code=503,
+            detail="Failed to reach RIA tags service",
         ) from exc

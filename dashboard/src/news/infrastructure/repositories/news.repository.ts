@@ -1,6 +1,6 @@
-import { Page } from '@/news/domain/models/page';
-import { News } from '@/news/domain/models/news';
-import { NewsQuery } from '@/news/domain/models/query';
+import { Page } from '@/news/domain/models/common/page';
+import { News } from '@/news/domain/models/news/news';
+import { NewsQuery } from '@/news/domain/models/news/query';
 import { NewsRepository } from '@/news/domain/repositories/news.repository';
 import { ExporterClient } from '@/news/infrastructure/clients/exporter.client';
 

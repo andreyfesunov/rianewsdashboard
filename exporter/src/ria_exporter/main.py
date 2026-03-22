@@ -6,15 +6,19 @@ from fastapi import FastAPI
 from ria_exporter.api.v1 import v1_router
 from ria_exporter.config import get_settings
 from ria_exporter.scraper.service import RiaSearchService
+from ria_exporter.scraper.tags_service import RiaTagsService
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     settings = get_settings()
-    service = RiaSearchService(settings)
-    app.state.search_service = service
+    search_service = RiaSearchService(settings)
+    tags_service = RiaTagsService(settings)
+    app.state.search_service = search_service
+    app.state.tags_service = tags_service
     yield
-    service.close()
+    search_service.close()
+    tags_service.close()
 
 
 app = FastAPI(title="RIA Exporter", lifespan=lifespan)

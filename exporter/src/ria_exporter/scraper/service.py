@@ -6,6 +6,7 @@ import requests
 
 from ria_exporter.api.schemas import NewsOut, NewsQueryIn, PageOut
 from ria_exporter.config import Settings
+from ria_exporter.scraper.errors import RiaResponseError
 from ria_exporter.scraper.parser import parse_search_html
 from ria_exporter.scraper.session import build_session
 
@@ -15,13 +16,6 @@ def _safe_string_to_int(value: str | None) -> int:
         return 0
     digits = re.sub(r"\D", "", value)
     return int(digits) if digits else 0
-
-
-class RiaResponseError(Exception):
-    __slots__ = ("status_code",)
-
-    def __init__(self, status_code: int) -> None:
-        self.status_code = status_code
 
 
 class RiaSearchService:

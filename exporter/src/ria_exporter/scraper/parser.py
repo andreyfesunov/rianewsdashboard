@@ -55,3 +55,17 @@ def parse_search_html(html: str) -> tuple[int | None, list[dict[str, Any]]]:
         )
 
     return total, items
+
+
+def parse_tag_suggestions(html: str) -> list[dict[str, str]]:
+    soup = BeautifulSoup(html, "html.parser")
+    out: list[dict[str, str]] = []
+    for li in soup.find_all("li"):
+        if not li.has_attr("data-value"):
+            continue
+        value = str(li["data-value"])
+        for icon in li.select(".tag-input__icon"):
+            icon.decompose()
+        label = li.get_text(strip=True)
+        out.append({"value": value, "label": label})
+    return out

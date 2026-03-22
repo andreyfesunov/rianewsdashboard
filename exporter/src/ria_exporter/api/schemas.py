@@ -8,6 +8,16 @@ class NewsQueryIn(BaseModel):
     tags: list[str] = Field(default_factory=list)
 
 
+class TagSuggestQueryIn(BaseModel):
+    page: int = Field(ge=1)
+    query: str
+
+
+class TagItemOut(BaseModel):
+    value: str
+    label: str
+
+
 class NewsOut(BaseModel):
     title: str
     url: str
